@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkreact_cli=self.webpackChunkreact_cli||[]).push([[443],{248:function(e,t,c){c.r(t),c.d(t,{default:function(){return u}});var n=c(294);function u(){return n.createElement("h1",{className:"home-title"},"About Page")}}}]);
+//# sourceMappingURL=about.78907f21e1.chunk.js.map

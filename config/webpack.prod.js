@@ -4,13 +4,15 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerWebpackPlugin = require('css-minimizer-webpack-plugin');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
+const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: './src/main.js',
   output: {
     path: path.resolve(__dirname, '../dist'), //no output in develop mode
     filename: 'static/js/[name].[contenthash:10].js', //entry file output
-    chunkFilename: 'static/js/[name].chunk.js',
+    chunkFilename: 'static/js/[name].[contenthash:10].chunk.js',
     assetModuleFilename: 'static/media/[hash:10][ext][query]',
     clean: true,
   },
@@ -125,6 +127,17 @@ module.exports = {
       filename: 'static/css/[name].[contenthash:10].chunk.css',
       chunkFilename: 'static/css/[name].[contenthash:10].chunk.css',
     }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, '../public'),
+          to: path.resolve(__dirname, '../dist'),
+          globOptions: {
+            ignore: ['**/index.html'], //ignore HTML file in public folder
+          },
+        },
+      ],
+    }),
   ],
   mode: 'production',
   devtool: 'source-map',
@@ -135,7 +148,37 @@ module.exports = {
     runtimeChunk: {
       name: (entrypoint) => `runtime~${entrypoint.name}.js`,
     },
-    minimizer: [new CssMinimizerWebpackPlugin(), new TerserWebpackPlugin()], //css compression, js compression
+    minimizer: [
+      new CssMinimizerWebpackPlugin(),
+      new TerserWebpackPlugin(),
+      new ImageMinimizerPlugin({
+        minimizer: {
+          implementation: ImageMinimizerPlugin.imageminGenerate,
+          options: {
+            plugins: [
+              ['gifsicle', { interlaced: true }],
+              ['jpegtran', { progressive: true }],
+              ['optipng', { optimizationLevel: 5 }],
+              [
+                'svgo',
+                {
+                  plugins: [
+                    'preset-default',
+                    'prefixIds',
+                    {
+                      name: 'sortAttrs',
+                      params: {
+                        xmlnsOrder: 'alphabetical',
+                      },
+                    },
+                  ],
+                },
+              ],
+            ],
+          },
+        },
+      }),
+    ], //css compression, js compression, image compression
   },
   resolve: {
     extensions: ['.jsx', '.js', '.json'],
