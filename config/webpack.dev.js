@@ -1,6 +1,7 @@
 const path = require('path');
 const EslintWebpackPlugin = require('eslint-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'); //for js HMR
 
 module.exports = {
   entry: './src/main.js',
@@ -99,6 +100,7 @@ module.exports = {
         options: {
           cacheDirectory: true,
           cacheCompression: false,
+          plugins: ['react-refresh/babel'], //HMR
         },
       },
     ],
@@ -117,6 +119,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '../public/index.html'),
     }),
+    new ReactRefreshWebpackPlugin(), //active JS HMR
   ],
   mode: 'development',
   devtool: 'cheap-module-source-map',
@@ -136,5 +139,6 @@ module.exports = {
     port: 3001,
     open: true,
     hot: true,
+    historyApiFallback: true, //resolve 404 issue
   },
 };
